@@ -7,32 +7,35 @@ import {
   AccordionIcon,
 } from "@chakra-ui/react";
 
-import fantasyData from "../data/fantasy_player_data.json";
+import fantasySeasonData from "../data/player_season_stats_by_season.json";
+import fantasyGameStats from "../data/player_stats_by_player.json";
+import PlayerDetailPanel from "./PlayerDetailPanel";
 
 const PlayerList = ({ position }) => {
-  const lastYearPositionData = fantasyData["2021"][position];
-  console.log(lastYearPositionData);
+  const lastYearPositionData = fantasySeasonData["2021"][position];
   return (
     <>
       <Accordion w="100%" allowMultiple allowToggle>
         {lastYearPositionData.map((player, index) => {
           return (
             <AccordionItem w="100%" key={index}>
-              <h2>
-                <AccordionButton w="100%">
-                  <Box flex="1" textAlign="left">
-                    {player.player}
-                  </Box>
-                  <AccordionIcon />
-                </AccordionButton>
-              </h2>
-              <AccordionPanel pb={4}>
-                {player.fantasy_points_ppr} <br></br>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat.
-              </AccordionPanel>
+              {({ isExpanded }) => (
+                <>
+                  <h2>
+                    <AccordionButton w="100%">
+                      <Box flex="1" textAlign="left">
+                        {player.player}
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </h2>
+                  <PlayerDetailPanel
+                    isExpanded={isExpanded}
+                    player={player}
+                    playerGames={fantasyGameStats}
+                  />
+                </>
+              )}
             </AccordionItem>
           );
         })}
