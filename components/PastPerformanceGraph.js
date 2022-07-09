@@ -108,11 +108,11 @@ const PastPerformanceGraph = ({ pastData }) => {
   // Get smoothed data
 
   let options = {
-    windowSize: 15,
+    windowSize: 25,
     derivative: 0,
     polynomial: 2,
     pad: "pre",
-    padValue: "replicate",
+    padValue: "symmetric",
   };
 
   // get fantasy points as an array
@@ -134,13 +134,24 @@ const PastPerformanceGraph = ({ pastData }) => {
     };
   });
 
-  // console.log(smoothPlottableData);
+  console.log(smoothPlottableData.length);
+
+  // convert smoothData to set of coordinates for polyline
+  const coordinates = smoothPlottableData.map((dataPoint, index) => {
+    const xValue = (200 / 64) * index;
+    const yValue = (92 / 100) * (100 - dataPoint.percentOfMax);
+    return `${xValue},${yValue}`;
+  });
+
+  const pointsString = coordinates.join(" ");
+
+  console.log(coordinates.join(" "));
 
   // let smoothData = savitzkyGolay(data, h, options)
 
   return (
     <>
-      <VStack w="100%" h="200px">
+      <VStack w="100%">
         <HStack w="100%" h="100%">
           {/* y axis label */}
           <Box w="30px">
@@ -158,7 +169,7 @@ const PastPerformanceGraph = ({ pastData }) => {
           {/* main plotting area */}
           <Box
             w="100%"
-            h="100%"
+            h="200px"
             borderLeft="2px solid"
             borderBottom="2px solid"
             position="relative"
@@ -203,7 +214,7 @@ const PastPerformanceGraph = ({ pastData }) => {
             </HStack>
 
             {/* smoothed data line */}
-            <HStack
+            {/* <HStack
               justify="space-between"
               h="100%"
               w="100%"
@@ -234,7 +245,16 @@ const PastPerformanceGraph = ({ pastData }) => {
                   </VStack>
                 );
               })}
-            </HStack>
+            </HStack> */}
+
+            <svg viewBox="0 0 200 200">
+              <polyline
+                fill="none"
+                stroke="red"
+                strokeWidth="1"
+                points={pointsString}
+              />
+            </svg>
 
             {/* y axis label */}
             <Box
@@ -248,8 +268,6 @@ const PastPerformanceGraph = ({ pastData }) => {
             </Box>
           </Box>
         </HStack>
-        {/* x axis label */}
-        <Heading fontSize="sm">Games</Heading>
       </VStack>
     </>
   );

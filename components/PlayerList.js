@@ -1,3 +1,4 @@
+import { Heading } from "@chakra-ui/react";
 import {
   Box,
   Accordion,
@@ -13,8 +14,7 @@ import PlayerDetailPanel from "./PlayerDetailPanel";
 
 const PlayerList = ({ position }) => {
   const lastYearPositionData = fantasySeasonData["2021"][position];
-  // const allValueArray = [...Array(lastYearPositionData.length).keys()];
-  // console.log();
+
   return (
     <>
       <Accordion w="100%" allowMultiple allowToggle>
@@ -26,9 +26,9 @@ const PlayerList = ({ position }) => {
               {({ isExpanded }) => (
                 <>
                   <h2>
-                    <AccordionButton w="100%">
+                    <AccordionButton w="100%" h="40px">
                       <Box flex="1" textAlign="left">
-                        {playerName}
+                        <Heading fontSize="md">{playerName}</Heading>
                       </Box>
                       <AccordionIcon />
                     </AccordionButton>
