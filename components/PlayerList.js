@@ -13,6 +13,8 @@ import PlayerDetailPanel from "./PlayerDetailPanel";
 
 const PlayerList = ({ position }) => {
   const lastYearPositionData = fantasySeasonData["2021"][position];
+  // const allValueArray = [...Array(lastYearPositionData.length).keys()];
+  // console.log();
   return (
     <>
       <Accordion w="100%" allowMultiple allowToggle>
