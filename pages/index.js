@@ -11,6 +11,7 @@ export default function Home() {
     <>
       <Head>
         <title>NFL Fantasy Visualizer</title>
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
       </Head>
       <VStack maxW="500px" m="auto" align="center">
         <NavBar />

@@ -1,3 +1,4 @@
+import { Tooltip } from "@chakra-ui/react";
 import {
   HStack,
   VStack,
@@ -5,6 +6,7 @@ import {
   Box,
   useColorModeValue,
 } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 
 // move function later
 // round to near
@@ -55,6 +57,10 @@ function getPlottableData(firstYear, firstWeek, pastData) {
     }
 
     for (let weekNum = startingWeek; weekNum <= lastWeek; weekNum++) {
+      // handle if the player played no games that year
+      if (!pastData[year]) {
+        pastData[year] = {};
+      }
       const gameData = pastData[year][`week ${weekNum}`];
 
       let fantasyPoints;
@@ -81,21 +87,32 @@ function getPlottableData(firstYear, firstWeek, pastData) {
       percentOfMax: 100 * (game.fantasyPoints / maxPointValue),
     };
   });
-  console.log(plottableData);
 
-  return plottableData;
+  return [plottableData, maxPointValue];
 }
 
 const PastPerformanceGraph = ({ pastData }) => {
   const pointColor = useColorModeValue("gray.800", "white");
-  console.log("pointColor", pointColor);
-  // console.log(pastData);
+  const [maxPointValue, setMaxPointValue] = useState(0);
+
   let yearsPlayed = Object.keys(pastData).map((year) => parseInt(year));
   let firstYear = Math.min(...yearsPlayed);
 
   let firstWeek = Object.keys(pastData[firstYear])[0];
 
-  let plottableData = getPlottableData(firstYear, firstWeek, pastData);
+  let [plottableData, _maxPointValue] = getPlottableData(
+    firstYear,
+    firstWeek,
+    pastData
+  );
+
+  useEffect(() => {
+    setMaxPointValue(_maxPointValue);
+  }, [pastData]);
+
+  // setMaxPointValue(_maxPointValue);
+
+  // console.log(plottableData);
 
   return (
     <>
@@ -118,9 +135,11 @@ const PastPerformanceGraph = ({ pastData }) => {
             h="100%"
             borderLeft="2px solid"
             borderBottom="2px solid"
+            position="relative"
           >
             <HStack justify="space-between" h="100%" spacing="0px">
               {plottableData.map((game, index) => {
+                console.log(game);
                 return (
                   <VStack
                     m="0"
@@ -131,17 +150,35 @@ const PastPerformanceGraph = ({ pastData }) => {
                     spacing="0px"
                     key={index}
                   >
-                    <Box
-                      minH="5px"
-                      w="100%"
-                      bg={pointColor}
-                      borderRadius="100%"
-                    />
+                    <Tooltip
+                      hasArrow
+                      label={`${game.year} week ${game.weekNum}: ${game.fantasyPoints}`}
+                      bg="gray.300"
+                      color="black"
+                    >
+                      <Box
+                        minH="5px"
+                        w="100%"
+                        bg={pointColor}
+                        borderRadius="100%"
+                        cursor="none"
+                      />
+                    </Tooltip>
                     <Box minH={`${game.percentOfMax}%`} w="100%" />
                   </VStack>
                 );
               })}
             </HStack>
+            {/* y axis label */}
+            <Box
+              position="absolute"
+              top="-4px"
+              left="-40px"
+              w="40px"
+              textAlign="right"
+            >
+              <Heading fontSize="14px">{maxPointValue} -</Heading>
+            </Box>
           </Box>
         </HStack>
         <Heading fontSize="sm">Games</Heading>

@@ -17,6 +17,8 @@ const PlayerList = ({ position }) => {
     <>
       <Accordion w="100%" allowMultiple allowToggle>
         {lastYearPositionData.map((player, index) => {
+          let playerName = player.player;
+          playerName = playerName.replace("&#39;", "'");
           return (
             <AccordionItem w="100%" key={index}>
               {({ isExpanded }) => (
@@ -24,7 +26,7 @@ const PlayerList = ({ position }) => {
                   <h2>
                     <AccordionButton w="100%">
                       <Box flex="1" textAlign="left">
-                        {player.player}
+                        {playerName}
                       </Box>
                       <AccordionIcon />
                     </AccordionButton>
