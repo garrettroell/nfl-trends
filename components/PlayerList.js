@@ -1,10 +1,9 @@
-import { Heading } from "@chakra-ui/react";
 import {
   Box,
+  Heading,
   Accordion,
   AccordionItem,
   AccordionButton,
-  AccordionPanel,
   AccordionIcon,
 } from "@chakra-ui/react";
 

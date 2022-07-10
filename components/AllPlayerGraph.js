@@ -1,6 +1,144 @@
 import { Box, Heading, HStack, VStack, Spacer } from "@chakra-ui/react";
+import fantasySeasonData from "../data/player_season_stats_by_season.json";
+import fantasyGameStats from "../data/player_stats_by_player.json";
+import { ensureOdd } from "../helpers/ensureOdd";
+import { gameDataToFantasyPoints } from "../helpers/gameDataToFantasyPoints";
+import savitzkyGolay from "../helpers/sgFilter";
+import AllPlayerGraphLine from "./AllPlayerGraphLine";
+
+// A function to convert game data to an array of objects that can be plotted
+function getPlottableData(playerData) {
+  let plottableData = [];
+
+  // only go as far back as to 2018
+
+  // get the years from the first year until 2021
+  // let mostRecentYear = 2021;
+  // let relevantYears = [...Array(1 + mostRecentYear - firstYear).keys()].map(
+  //   (diff) => firstYear + diff
+  // );
+
+  // loop over each year getting the weeks from each year
+  for (const year of [2018, 2019, 2020, 2021]) {
+    // if its the players first season, start their data with the first week they played
+    // if (year === firstYear) {
+    //   startingWeek = firstWeek.split("week ")[1];
+    // } else {
+    //   startingWeek = 1;
+    // }
+
+    // // account for the 17 game season in 2021
+    let lastWeek;
+    if (year >= 2021) {
+      lastWeek = 17;
+    } else {
+      lastWeek = 16;
+    }
+
+    // loop over the relevant weeks from a single year
+    for (let weekNum = 1; weekNum <= lastWeek; weekNum++) {
+      // if the player played no games in a year
+      if (!playerData[year]) {
+        playerData[year] = {};
+      }
+
+      // get the player's data from that week
+      const gameData = playerData[year][`week ${weekNum}`];
+
+      // convert the game data to fantasy points
+      let fantasyPoints;
+      if (!gameData) {
+        fantasyPoints = "no data";
+      } else {
+        fantasyPoints = gameDataToFantasyPoints(gameData, 0.5);
+      }
+
+      // add data point to array
+      plottableData.push({
+        year: year,
+        weekNum: parseInt(weekNum),
+        fantasyPoints: fantasyPoints,
+      });
+    }
+  }
+
+  // get the first index that has data
+  let firstIndex = plottableData.length - 1;
+  plottableData.forEach((game, index) => {
+    if (game.fantasyPoints !== "no data" && index < firstIndex) {
+      firstIndex = index;
+    }
+  });
+
+  // console.log(firstIndex);
+
+  // make an array of data to pass to smoothing function
+  let dataToSmooth = [];
+  for (let index = firstIndex; index < plottableData.length; index++) {
+    if (plottableData[index].fantasyPoints === "no data") {
+      dataToSmooth = [...dataToSmooth, 0];
+    } else {
+      dataToSmooth = [...dataToSmooth, plottableData[index].fantasyPoints];
+    }
+  }
+
+  // window size will be between 5 and 25 based on number of games
+  let windowSize = Math.min(25, ensureOdd(dataToSmooth.length));
+  windowSize = Math.max(5, windowSize);
+
+  let options = {
+    windowSize: windowSize,
+    derivative: 0,
+    polynomial: 2,
+    pad: "pre",
+    padValue: "symmetric",
+  };
+
+  // console.log(dataToSmooth.length);
+
+  // only plot players with more than 3 games
+  if (dataToSmooth.length > 3) {
+    let smoothedData = savitzkyGolay(dataToSmooth, 1, options);
+
+    // replace negative values with zeros
+    smoothedData = smoothedData.map((val) => Math.max(val, 0));
+
+    // temporarily set arbitrary max value
+    const maxValue = 30;
+    const numPoints = 65;
+
+    // console.log(smoothedData.length);
+
+    // convert to svg coordinates
+    const coordinates = smoothedData.map((dataPoint, index) => {
+      const xValue = (200 / numPoints) * (index + firstIndex);
+      const yValue = (92 / maxValue) * (maxValue - dataPoint);
+      return `${xValue},${yValue}`;
+    });
+
+    const svgString = coordinates.join(" ");
+
+    // console.log(svgString);
+    return svgString;
+  }
+
+  return "";
+}
 
 const AllPlayerGraph = ({ position }) => {
+  const lastYearPositionData = fantasySeasonData["2021"][position];
+
+  const playerIds = lastYearPositionData.map((player) => player.playerId);
+
+  // get the svg string for each player
+  let svgStrings = playerIds.map((playerId) => {
+    let playerData = fantasyGameStats[playerId];
+    return getPlottableData(playerData);
+  });
+
+  // remove empty strings
+  svgStrings = svgStrings.filter((string) => string.length > 0);
+
   return (
     <>
       <VStack w="100%" h="250px">
@@ -26,78 +164,13 @@ const AllPlayerGraph = ({ position }) => {
             borderBottom="2px solid"
             position="relative"
           >
-            {/* raw data points */}
-            {/* <HStack
-              justify="space-between"
-              h="100%"
-              w="100%"
-              spacing="0px"
-              position="absolute"
-            >
-              {plottableData.map((game, index) => {
-                return (
-                  <VStack
-                    m="0"
-                    h="100%"
-                    minW="5px"
-                    align="flex-end"
-                    justify="flex-end"
-                    spacing="0px"
-                    key={index}
-                  >
-                    <Tooltip
-                      hasArrow
-                      label={`${game.year} week ${game.weekNum}: ${game.fantasyPoints}`}
-                      bg="gray.300"
-                      color="black"
-                    >
-                      <Box
-                        minH="5px"
-                        w="100%"
-                        bg={pointColor}
-                        borderRadius="100%"
-                        cursor="none"
-                      />
-                    </Tooltip>
-                    <Box minH={`${game.percentOfMax}%`} w="100%" />
-                  </VStack>
-                );
-              })}
-            </HStack> */}
-
-            {/* smoothed data line
-            <HStack
-              justify="space-between"
-              h="100%"
-              w="100%"
-              spacing="0px"
-              position="absolute"
-              pointerEvents="none"
-            >
-              {smoothPlottableData.map((game, index) => {
-                return (
-                  <VStack
-                    m="0"
-                    h="100%"
-                    minW="5px"
-                    align="flex-end"
-                    justify="flex-end"
-                    spacing="0px"
-                    key={index}
-                  >
-                    <Box
-                      minH="5px"
-                      w="100%"
-                      // bg={lineColor}
-                      bg="red"
-                      borderRadius="100%"
-                      cursor="none"
-                    />
-                    <Box minH={`${game.percentOfMax}%`} w="100%" />
-                  </VStack>
-                );
-              })}
-            </HStack> */}
+            <Box w="100%" h="100%" position="absolute" top="0px" left="0px">
+              <svg viewBox="0 0 200 92">
+                {svgStrings.map((string, index) => {
+                  return <AllPlayerGraphLine string={string} key={index} />;
+                })}
+              </svg>
+            </Box>
 
             {/* y axis label */}
             <Box
@@ -107,7 +180,7 @@ const AllPlayerGraph = ({ position }) => {
               w="40px"
               textAlign="right"
             >
-              <Heading fontSize="14px">pi -</Heading>
+              <Heading fontSize="14px">{30} -</Heading>
             </Box>
           </Box>
         </HStack>

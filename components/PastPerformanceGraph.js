@@ -6,7 +6,7 @@ import {
   Box,
   useColorModeValue,
 } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { ensureOdd } from "../helpers/ensureOdd";
 import { gameDataToFantasyPoints } from "../helpers/gameDataToFantasyPoints";
 import { roundUpToNearestFive } from "../helpers/roundUpToNearestFive";
 import savitzkyGolay from "../helpers/sgFilter";
@@ -16,7 +16,6 @@ function getPlottableData(firstYear, firstWeek, pastData) {
   let plottableData = [];
 
   // only go as far back as to 2018
-  firstYear = Math.max(firstYear, 2018);
 
   // get the years from the first year until 2021
   let mostRecentYear = 2021;
@@ -89,11 +88,12 @@ function getPlottableData(firstYear, firstWeek, pastData) {
 
 const PastPerformanceGraph = ({ pastData }) => {
   const pointColor = useColorModeValue("gray.800", "white");
-  const lineColor = useColorModeValue("blue");
+  const lineColor = useColorModeValue("blue", "red");
 
-  // get the first year the player played
+  // get the first year the player played or 2018 if player played then
   let yearsPlayed = Object.keys(pastData).map((year) => parseInt(year));
   let firstYear = Math.min(...yearsPlayed);
+  firstYear = Math.max(firstYear, 2018);
 
   // get the first week the player played
   let firstWeek = Object.keys(pastData[firstYear])[0];
@@ -107,16 +107,22 @@ const PastPerformanceGraph = ({ pastData }) => {
 
   // Get smoothed data
 
+  // get fantasy points as an array
+  let data = plottableData.map((game) => game.fantasyPoints);
+
+  // window size will be between 5 and 25 based on number of games
+  let windowSize = Math.min(25, ensureOdd(data.length));
+  windowSize = Math.max(5, windowSize);
+
   let options = {
-    windowSize: 25,
+    windowSize: windowSize,
     derivative: 0,
     polynomial: 2,
     pad: "pre",
     padValue: "symmetric",
   };
 
-  // get fantasy points as an array
-  let data = plottableData.map((game) => game.fantasyPoints);
+  // console.log(data);
 
   // get smoothed data
   let smoothedData = savitzkyGolay(data, 1, options);
@@ -134,20 +140,18 @@ const PastPerformanceGraph = ({ pastData }) => {
     };
   });
 
-  console.log(smoothPlottableData.length);
+  // console.log(smoothPlottableData.length);
+
+  let numPoints = smoothPlottableData.length;
 
   // convert smoothData to set of coordinates for polyline
   const coordinates = smoothPlottableData.map((dataPoint, index) => {
-    const xValue = (200 / 64) * index;
+    const xValue = (200 / numPoints) * index;
     const yValue = (92 / 100) * (100 - dataPoint.percentOfMax);
     return `${xValue},${yValue}`;
   });
 
   const pointsString = coordinates.join(" ");
-
-  console.log(coordinates.join(" "));
-
-  // let smoothData = savitzkyGolay(data, h, options)
 
   return (
     <>
@@ -214,39 +218,6 @@ const PastPerformanceGraph = ({ pastData }) => {
             </HStack>
 
             {/* smoothed data line */}
-            {/* <HStack
-              justify="space-between"
-              h="100%"
-              w="100%"
-              spacing="0px"
-              position="absolute"
-              pointerEvents="none"
-            >
-              {smoothPlottableData.map((game, index) => {
-                return (
-                  <VStack
-                    m="0"
-                    h="100%"
-                    minW="5px"
-                    align="flex-end"
-                    justify="flex-end"
-                    spacing="0px"
-                    key={index}
-                  >
-                    <Box
-                      minH="5px"
-                      w="100%"
-                      // bg={lineColor}
-                      bg="red"
-                      borderRadius="100%"
-                      cursor="none"
-                    />
-                    <Box minH={`${game.percentOfMax}%`} w="100%" />
-                  </VStack>
-                );
-              })}
-            </HStack> */}
-
             <svg viewBox="0 0 200 200">
               <polyline
                 fill="none"
@@ -268,6 +239,19 @@ const PastPerformanceGraph = ({ pastData }) => {
             </Box>
           </Box>
         </HStack>
+        {/* x axis label */}
+        <Box w="100%" textAlign="right">
+          <HStack justify="space-between" w="calc(100% - 35px)" ml="auto">
+            {[...Array(2022 - firstYear).keys()].map((year, index) => {
+              return (
+                <Heading fontSize="sm" key={index}>
+                  {firstYear + year}
+                </Heading>
+              );
+            })}
+            <Heading></Heading>
+          </HStack>
+        </Box>
       </VStack>
     </>
   );
