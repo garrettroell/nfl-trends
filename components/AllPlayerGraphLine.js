@@ -1,8 +1,14 @@
-import { Box } from "@chakra-ui/react";
 import { useState } from "react";
+import fantasyGameStats from "../data/player_stats_by_player.json";
 
-const AllPlayerGraphLine = ({ string }) => {
+const AllPlayerGraphLine = ({ string, playerId, setFocusPlayer }) => {
   const [isHovered, setIsHovered] = useState(false);
+
+  // get the player's name
+  const firstWeek = Object.keys(fantasyGameStats[playerId][2021])[0];
+  let playerName = fantasyGameStats[playerId][2021][firstWeek].player_name;
+  playerName = playerName.replace("&#39;", "'");
+
   return (
     <polyline
       fill="none"
@@ -11,9 +17,12 @@ const AllPlayerGraphLine = ({ string }) => {
       points={string}
       opacity={isHovered ? "1" : "0.3"}
       onMouseEnter={() => {
+        console.log(playerId);
+        setFocusPlayer(playerName);
         setIsHovered(true);
       }}
       onMouseLeave={() => {
+        setFocusPlayer("");
         setIsHovered(false);
       }}
     />

@@ -1,4 +1,5 @@
 import { Box, Heading, HStack, VStack, Spacer } from "@chakra-ui/react";
+import { useState } from "react";
 import fantasySeasonData from "../data/player_season_stats_by_season.json";
 import fantasyGameStats from "../data/player_stats_by_player.json";
 import { ensureOdd } from "../helpers/ensureOdd";
@@ -118,7 +119,6 @@ function getPlottableData(playerData) {
 
     const svgString = coordinates.join(" ");
 
-    // console.log(svgString);
     return svgString;
   }
 
@@ -126,22 +126,24 @@ function getPlottableData(playerData) {
 }
 
 const AllPlayerGraph = ({ position }) => {
+  const [focusPlayer, setFocusPlayer] = useState("");
   const lastYearPositionData = fantasySeasonData["2021"][position];
 
   const playerIds = lastYearPositionData.map((player) => player.playerId);
 
   // get the svg string for each player
-  let svgStrings = playerIds.map((playerId) => {
-    let playerData = fantasyGameStats[playerId];
-    return getPlottableData(playerData);
-  });
+  let svgStrings = {};
 
-  // remove empty strings
-  svgStrings = svgStrings.filter((string) => string.length > 0);
+  playerIds.forEach((playerId) => {
+    let playerData = fantasyGameStats[playerId];
+    if (getPlottableData(playerData).length > 0) {
+      svgStrings[playerId] = getPlottableData(playerData);
+    }
+  });
 
   return (
     <>
-      <VStack w="100%" h="250px">
+      <VStack w="100%" h="238px">
         <HStack w="100%" h="100%">
           {/* y axis label */}
           <Box w="30px">
@@ -166,8 +168,15 @@ const AllPlayerGraph = ({ position }) => {
           >
             <Box w="100%" h="100%" position="absolute" top="0px" left="0px">
               <svg viewBox="0 0 200 92">
-                {svgStrings.map((string, index) => {
-                  return <AllPlayerGraphLine string={string} key={index} />;
+                {Object.keys(svgStrings).map((playerId, index) => {
+                  return (
+                    <AllPlayerGraphLine
+                      playerId={playerId}
+                      string={svgStrings[playerId]}
+                      setFocusPlayer={setFocusPlayer}
+                      key={index}
+                    />
+                  );
                 })}
               </svg>
             </Box>
@@ -194,11 +203,13 @@ const AllPlayerGraph = ({ position }) => {
             <Heading fontSize="sm"></Heading>
           </HStack>
         </Box>
-
-        {/* player name here */}
-        <Heading fontSize="lg"></Heading>
-        <Spacer h="20px" />
       </VStack>
+      {/* player name here */}
+      <Box h="25px">
+        <Heading fontSize="lg">{focusPlayer}</Heading>
+      </Box>
+
+      <Spacer h="20px" />
     </>
   );
 };
