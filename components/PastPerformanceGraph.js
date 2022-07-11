@@ -88,15 +88,18 @@ function getPlottableData(firstYear, firstWeek, pastData) {
 
 const PastPerformanceGraph = ({ pastData }) => {
   const pointColor = useColorModeValue("gray.800", "white");
-  const lineColor = useColorModeValue("blue", "red");
 
-  // get the first year the player played or 2018 if player played then
-  let yearsPlayed = Object.keys(pastData).map((year) => parseInt(year));
-  let firstYear = Math.min(...yearsPlayed);
-  firstYear = Math.max(firstYear, 2018);
-
-  // get the first week the player played
-  let firstWeek = Object.keys(pastData[firstYear])[0];
+  // get the first year and first week the player played, starting with 2018
+  let firstYear;
+  let firstWeek;
+  for (const year of [2021, 2020, 2019, 2018]) {
+    let weeksPlayed = Object.keys(pastData[year]);
+    if (weeksPlayed.length > 0) {
+      firstYear = year;
+      firstWeek = weeksPlayed[0];
+    }
+    console.log(year, weeksPlayed);
+  }
 
   // get the array of data points from the player's past data
   let [plottableData, maxPointValue] = getPlottableData(
@@ -104,8 +107,6 @@ const PastPerformanceGraph = ({ pastData }) => {
     firstWeek,
     pastData
   );
-
-  // Get smoothed data
 
   // get fantasy points as an array
   let data = plottableData.map((game) => game.fantasyPoints);
@@ -122,15 +123,13 @@ const PastPerformanceGraph = ({ pastData }) => {
     padValue: "symmetric",
   };
 
-  // console.log(data);
-
   // get smoothed data
   let smoothedData = savitzkyGolay(data, 1, options);
 
   // calculate the max fantasy points the player has scored since 2018 (rounded up to nearest 5)
   const allPointValues = plottableData.map((game) => game.fantasyPoints);
   let smoothMaxPointValue = Math.max(...allPointValues);
-  maxPointValue = roundUpToNearestFive(smoothMaxPointValue);
+  smoothMaxPointValue = roundUpToNearestFive(smoothMaxPointValue);
 
   // add the percentOfMax value to each data point to help with plotting
   let smoothPlottableData = smoothedData.map((smoothValue) => {
@@ -139,8 +138,6 @@ const PastPerformanceGraph = ({ pastData }) => {
       percentOfMax: Math.max(100 * (smoothValue / smoothMaxPointValue), 0),
     };
   });
-
-  // console.log(smoothPlottableData.length);
 
   let numPoints = smoothPlottableData.length;
 
