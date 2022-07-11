@@ -10,7 +10,6 @@ function openPlayerDetails(playerName, accordionElement) {
         nameButtonNode.click();
         nameButtonNode.focus();
       }
-      // console.log(node.innerText);
     });
   }
 }

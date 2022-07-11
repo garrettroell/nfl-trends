@@ -72,8 +72,6 @@ function getPlottableData(playerData) {
     }
   });
 
-  // console.log(firstIndex);
-
   // make an array of data to pass to smoothing function
   let dataToSmooth = [];
   for (let index = firstIndex; index < plottableData.length; index++) {
@@ -96,8 +94,6 @@ function getPlottableData(playerData) {
     padValue: "symmetric",
   };
 
-  // console.log(dataToSmooth.length);
-
   // only plot players with more than 3 games
   if (dataToSmooth.length > 3) {
     let smoothedData = savitzkyGolay(dataToSmooth, 1, options);
@@ -108,8 +104,6 @@ function getPlottableData(playerData) {
     // temporarily set arbitrary max value
     const maxValue = 30;
     const numPoints = 65;
-
-    // console.log(smoothedData.length);
 
     // convert to svg coordinates
     const coordinates = smoothedData.map((dataPoint, index) => {

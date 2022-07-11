@@ -1,3 +1,4 @@
+import { AspectRatio } from "@chakra-ui/react";
 import {
   Tooltip,
   HStack,
@@ -98,7 +99,6 @@ const PastPerformanceGraph = ({ pastData }) => {
       firstYear = year;
       firstWeek = weeksPlayed[0];
     }
-    console.log(year, weeksPlayed);
   }
 
   // get the array of data points from the player's past data
@@ -170,7 +170,7 @@ const PastPerformanceGraph = ({ pastData }) => {
           {/* main plotting area */}
           <Box
             w="100%"
-            h="200px"
+            // h="200px"
             borderLeft="2px solid"
             borderBottom="2px solid"
             position="relative"
@@ -215,14 +215,16 @@ const PastPerformanceGraph = ({ pastData }) => {
             </HStack>
 
             {/* smoothed data line */}
-            <svg viewBox="0 0 200 200">
-              <polyline
-                fill="none"
-                stroke="red"
-                strokeWidth="1"
-                points={pointsString}
-              />
-            </svg>
+            <AspectRatio ratio={200 / 92}>
+              <svg viewBox="0 0 200 92">
+                <polyline
+                  fill="none"
+                  stroke="red"
+                  strokeWidth="1"
+                  points={pointsString}
+                />
+              </svg>
+            </AspectRatio>
 
             {/* y axis label */}
             <Box
