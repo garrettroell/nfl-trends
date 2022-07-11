@@ -5,7 +5,7 @@ const Footer = () => {
   const currentYear = new Date().getFullYear();
   return (
     <HStack
-      width="500px"
+      maxW="500px"
       m="auto"
       height="50px"
       justify="space-between"
@@ -26,13 +26,6 @@ const Footer = () => {
             <FiGithub />
           </Button>
         </Link>
-        {/* <Button onClick={toggleColorMode} variant="outline">
-          {colorMode === "light" ? (
-            <MoonIcon w={4} h={4} p="0" color="white" />
-          ) : (
-            <SunIcon w={4} h={4} px="0" />
-          )}
-        </Button> */}
       </HStack>
     </HStack>
   );
