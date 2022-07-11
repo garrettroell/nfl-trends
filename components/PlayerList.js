@@ -11,12 +11,12 @@ import fantasySeasonData from "../data/player_season_stats_by_season.json";
 import fantasyGameStats from "../data/player_stats_by_player.json";
 import PlayerDetailPanel from "./PlayerDetailPanel";
 
-const PlayerList = ({ position }) => {
+const PlayerList = ({ position, accordionElement }) => {
   const lastYearPositionData = fantasySeasonData["2021"][position];
 
   return (
     <>
-      <Accordion w="100%" allowMultiple allowToggle>
+      <Accordion w="100%" ref={accordionElement} allowMultiple allowToggle>
         {lastYearPositionData.map((player, index) => {
           let playerName = player.player;
           playerName = playerName.replace("&#39;", "'");

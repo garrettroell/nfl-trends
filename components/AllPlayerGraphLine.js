@@ -1,7 +1,26 @@
 import { useState } from "react";
 import fantasyGameStats from "../data/player_stats_by_player.json";
 
-const AllPlayerGraphLine = ({ string, playerId, setFocusPlayer }) => {
+// Function opens player details and focuses it
+function openPlayerDetails(playerName, accordionElement) {
+  if (accordionElement.current) {
+    Array.from(accordionElement.current.children).forEach((node) => {
+      if (playerName === node.innerText) {
+        const nameButtonNode = node.children[0].children[0];
+        nameButtonNode.click();
+        nameButtonNode.focus();
+      }
+      // console.log(node.innerText);
+    });
+  }
+}
+
+const AllPlayerGraphLine = ({
+  string,
+  playerId,
+  setFocusPlayer,
+  accordionElement,
+}) => {
   const [isHovered, setIsHovered] = useState(false);
 
   // get the player's name
@@ -17,13 +36,15 @@ const AllPlayerGraphLine = ({ string, playerId, setFocusPlayer }) => {
       points={string}
       opacity={isHovered ? "1" : "0.3"}
       onMouseEnter={() => {
-        console.log(playerId);
         setFocusPlayer(playerName);
         setIsHovered(true);
       }}
       onMouseLeave={() => {
         setFocusPlayer("");
         setIsHovered(false);
+      }}
+      onClick={() => {
+        openPlayerDetails(playerName, accordionElement);
       }}
     />
   );

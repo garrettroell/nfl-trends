@@ -125,7 +125,7 @@ function getPlottableData(playerData) {
   return "";
 }
 
-const AllPlayerGraph = ({ position }) => {
+const AllPlayerGraph = ({ position, accordionElement }) => {
   const [focusPlayer, setFocusPlayer] = useState("");
   const lastYearPositionData = fantasySeasonData["2021"][position];
 
@@ -174,6 +174,7 @@ const AllPlayerGraph = ({ position }) => {
                       playerId={playerId}
                       string={svgStrings[playerId]}
                       setFocusPlayer={setFocusPlayer}
+                      accordionElement={accordionElement}
                       key={index}
                     />
                   );
