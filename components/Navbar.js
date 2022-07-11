@@ -5,7 +5,7 @@ const NavBar = () => {
   const { colorMode, toggleColorMode } = useColorMode();
   return (
     <HStack maxW="500px" w="100%" m="auto" p="10px" justify="space-between">
-      <Heading fontSize="2xl">Fantasy Visualizer</Heading>
+      <Heading fontSize="2xl">NFL Fantasy Trends</Heading>
       <Button onClick={toggleColorMode} variant="outline">
         {colorMode === "light" ? (
           <MoonIcon w={4} h={4} p="0" />

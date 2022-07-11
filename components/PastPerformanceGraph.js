@@ -1,4 +1,3 @@
-import { AspectRatio } from "@chakra-ui/react";
 import {
   Tooltip,
   HStack,
@@ -6,6 +5,7 @@ import {
   Heading,
   Box,
   useColorModeValue,
+  AspectRatio,
 } from "@chakra-ui/react";
 import { ensureOdd } from "../helpers/ensureOdd";
 import { gameDataToFantasyPoints } from "../helpers/gameDataToFantasyPoints";
@@ -123,32 +123,36 @@ const PastPerformanceGraph = ({ pastData }) => {
     padValue: "symmetric",
   };
 
-  // get smoothed data
-  let smoothedData = savitzkyGolay(data, 1, options);
+  // can't smooth incredibly short data lists
+  let pointsString = "";
+  if (data.length > 1) {
+    // get smoothed data
+    let smoothedData = savitzkyGolay(data, 1, options);
 
-  // calculate the max fantasy points the player has scored since 2018 (rounded up to nearest 5)
-  const allPointValues = plottableData.map((game) => game.fantasyPoints);
-  let smoothMaxPointValue = Math.max(...allPointValues);
-  smoothMaxPointValue = roundUpToNearestFive(smoothMaxPointValue);
+    // calculate the max fantasy points the player has scored since 2018 (rounded up to nearest 5)
+    const allPointValues = plottableData.map((game) => game.fantasyPoints);
+    let smoothMaxPointValue = Math.max(...allPointValues);
+    smoothMaxPointValue = roundUpToNearestFive(smoothMaxPointValue);
 
-  // add the percentOfMax value to each data point to help with plotting
-  let smoothPlottableData = smoothedData.map((smoothValue) => {
-    return {
-      smoothValue: smoothValue,
-      percentOfMax: Math.max(100 * (smoothValue / smoothMaxPointValue), 0),
-    };
-  });
+    // add the percentOfMax value to each data point to help with plotting
+    let smoothPlottableData = smoothedData.map((smoothValue) => {
+      return {
+        smoothValue: smoothValue,
+        percentOfMax: Math.max(100 * (smoothValue / smoothMaxPointValue), 0),
+      };
+    });
 
-  let numPoints = smoothPlottableData.length;
+    let numPoints = smoothPlottableData.length;
 
-  // convert smoothData to set of coordinates for polyline
-  const coordinates = smoothPlottableData.map((dataPoint, index) => {
-    const xValue = (200 / numPoints) * index;
-    const yValue = (92 / 100) * (100 - dataPoint.percentOfMax);
-    return `${xValue},${yValue}`;
-  });
+    // convert smoothData to set of coordinates for polyline
+    const coordinates = smoothPlottableData.map((dataPoint, index) => {
+      const xValue = (200 / numPoints) * index;
+      const yValue = (92 / 100) * (100 - dataPoint.percentOfMax);
+      return `${xValue},${yValue}`;
+    });
 
-  const pointsString = coordinates.join(" ");
+    pointsString = coordinates.join(" ");
+  }
 
   return (
     <>
@@ -215,7 +219,7 @@ const PastPerformanceGraph = ({ pastData }) => {
             </HStack>
 
             {/* smoothed data line */}
-            <AspectRatio ratio={200 / 92}>
+            <AspectRatio ratio={200 / 92} pointerEvents="none">
               <svg viewBox="0 0 200 92">
                 <polyline
                   fill="none"

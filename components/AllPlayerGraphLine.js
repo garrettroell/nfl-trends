@@ -1,14 +1,23 @@
 import { useState } from "react";
 import fantasyGameStats from "../data/player_stats_by_player.json";
+import { removeLinebreaks } from "../helpers/removeLinebreaks";
 
 // Function opens player details and focuses it
 function openPlayerDetails(playerName, accordionElement) {
+  console.log(`${playerName} clicked`);
   if (accordionElement.current) {
+    console.log("inside if statement");
     Array.from(accordionElement.current.children).forEach((node) => {
-      if (playerName === node.innerText) {
+      // this is need for safari to match player name
+      const nodePlayerName = removeLinebreaks(node.innerText);
+      if (playerName === nodePlayerName) {
         const nameButtonNode = node.children[0].children[0];
         nameButtonNode.click();
         nameButtonNode.focus();
+        nameButtonNode.blur();
+        nameButtonNode.scrollIntoView({
+          behavior: "smooth",
+        });
       }
     });
   }
