@@ -1,3 +1,4 @@
+import { AspectRatio } from "@chakra-ui/react";
 import { Box, Heading, HStack, VStack, Spacer } from "@chakra-ui/react";
 import { useState } from "react";
 import fantasySeasonData from "../data/player_season_stats_by_season.json";
@@ -143,7 +144,10 @@ const AllPlayerGraph = ({ position, accordionElement }) => {
 
   return (
     <>
-      <VStack w="100%" h="238px">
+      <VStack
+        w="100%"
+        // h="238px"
+      >
         <HStack w="100%" h="100%">
           {/* y axis label */}
           <Box w="30px">
@@ -166,7 +170,14 @@ const AllPlayerGraph = ({ position, accordionElement }) => {
             borderBottom="2px solid"
             position="relative"
           >
-            <Box w="100%" h="100%" position="absolute" top="0px" left="0px">
+            <AspectRatio
+              w="100%"
+              ratio={200 / 92}
+              position="relative"
+              top="0px"
+              left="0px"
+            >
+              {/* <Box w="100%" h="100%" position="absolute" top="0px" left="0px"> */}
               <svg viewBox="0 0 200 92">
                 {Object.keys(svgStrings).map((playerId, index) => {
                   return (
@@ -180,7 +191,7 @@ const AllPlayerGraph = ({ position, accordionElement }) => {
                   );
                 })}
               </svg>
-            </Box>
+            </AspectRatio>
 
             {/* y axis label */}
             <Box
