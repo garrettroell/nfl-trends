@@ -1,5 +1,11 @@
-import { AspectRatio } from "@chakra-ui/react";
-import { Box, Heading, HStack, VStack, Spacer } from "@chakra-ui/react";
+import {
+  AspectRatio,
+  Box,
+  Heading,
+  HStack,
+  VStack,
+  Spacer,
+} from "@chakra-ui/react";
 import { useState } from "react";
 import fantasySeasonData from "../data/player_season_stats_by_season.json";
 import fantasyGameStats from "../data/player_stats_by_player.json";
@@ -12,24 +18,9 @@ import AllPlayerGraphLine from "./AllPlayerGraphLine";
 function getPlottableData(playerData) {
   let plottableData = [];
 
-  // only go as far back as to 2018
-
-  // get the years from the first year until 2021
-  // let mostRecentYear = 2021;
-  // let relevantYears = [...Array(1 + mostRecentYear - firstYear).keys()].map(
-  //   (diff) => firstYear + diff
-  // );
-
   // loop over each year getting the weeks from each year
   for (const year of [2018, 2019, 2020, 2021]) {
-    // if its the players first season, start their data with the first week they played
-    // if (year === firstYear) {
-    //   startingWeek = firstWeek.split("week ")[1];
-    // } else {
-    //   startingWeek = 1;
-    // }
-
-    // // account for the 17 game season in 2021
+    // account for the 17 game seasons starting in 2021
     let lastWeek;
     if (year >= 2021) {
       lastWeek = 17;
@@ -38,7 +29,7 @@ function getPlottableData(playerData) {
     }
 
     // loop over the relevant weeks from a single year
-    for (let weekNum = 1; weekNum <= lastWeek; weekNum++) {
+    for (let weekNum = 1; weekNum <= lastWeek; weekNum += 1) {
       // if the player played no games in a year
       if (!playerData[year]) {
         playerData[year] = {};
